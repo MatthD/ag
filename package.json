@@ -1,0 +1,19 @@
+{
+  "name": "agathe",
+  "version": "1.0.0",
+  "description": "An agathe badge test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "mocha": "^3.4.2",
+    "nightwatch": "^0.9.15"
+  },
+  "devDependencies": {
+    "zombie": "^5.0.5"
+  }
+}
