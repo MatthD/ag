@@ -42,26 +42,52 @@ browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
   let monthUrl = `https://ups76-1.agateb.cnrs.fr/index.php?controller=Pointage/Feuille&action=showTempsTheorique&date_debut=${fullFirstDay}&date_fin=${fullLastDay}&user_id=${userId}`
   return browser.visit(monthUrl);
 }).then(function () {
-  let result;
+  let info,
+    jourCourant = browser.document.querySelector(".jour_courant");
   //Check if day is not ferie
-  if(browser.document.querySelector(".jour_courant").classList.contains("ferie")){
-    result = "Aujourd'hui c'ets jour férié, on ne travaille pas :)";
-    return result;
+  if(jourCourant.classList.contains("ferie")){
+    info = "Aujourd'hui c'est jour férié, on ne travaille pas :)";
   }
-  const baseDay = 507; //timestamp
-  let entree = browser.document.querySelector(".jour_courant .pointage span").getAttribute("data-entree").split(".")[0],
-    sortie = new Date((+entree + baseDay)*1000),
-    sortieTime = `Aujourd'hui tu peux sortir à ${sortie.getMinutes()}H${sortie.getSeconds()}`;
-  let getInfosbonusMalus = browser.document.querySelector("#fiche_pointage tfoot .diff.ui-state-default").textContent.trim().split("h"),
+  if(jourCourant.classList.contains("chome")){
+    info = "Aujourd'hui c'est chomé! Pas de taff."
+  }
+  if(!info){
+    const baseDay = 507; //timestamp
+    let entree = browser.document.querySelector(".jour_courant .pointage span").getAttribute("data-entree").split(".")[0],
+      sortie = new Date((+entree + baseDay)*1000);
+    info = `Aujourd'hui tu peux sortir à ${sortie.getMinutes()}H${sortie.getSeconds()}`;   
+  }
+  let currentMonth = browser.document.querySelector("#fiche_pointage tfoot .diff.ui-state-default").textContent.trim().split("h"),
     previousMonth = browser.document.querySelector("#recap_mensuel tbody tr:nth-child(2) td:nth-child(2)").textContent.trim().split("h"),
-    isNegativePrevious = previousMonth.indexOf("-"),
-    isNegativeMonth = getInfosbonusMalus.indexOf("-"),
-    nbOfHoursInMore = (isNegativeMonth ? -getInfosbonusMalus[0] : +getInfosbonusMalus[0]) + (isNegativePrevious ? -previousMonth[0] : +previousMonth[0]),
-    nbOfMinutesInMore = (isNegativeMonth ? -getInfosbonusMalus[1] : +getInfosbonusMalus[1]) + (isNegativePrevious ? -previousMonth[1] : +previousMonth[1]);
-  let totalMinutes = nbOfMinutesInMore + (nbOfHoursInMore*60),
-  totalTime = `Tu as cumulé ${(totalMinutes/60).toFixed()}H${totalMinutes%60}`;
-  return {sortieTime, totalTime};
+    //Check if previousMonth & currentMonth ahs positiv or negativ value
+    isNegativePreviousMonth = previousMonth.indexOf("-"),
+    isNegativeCurrentMonth = currentMonth.indexOf("-");
+
+  //We need to cast string value to real number & if they are negative we double cast them 
+  // !!!!we cannot just do - directly to cast negatif , not working
+  for(var element of previousMonth){
+    element = +element;
+  }
+  for(var element of currentMonth){
+    element = +element;
+  }
+
+  if(isNegativePreviousMonth){
+    previousMonth[0] = -previousMonth[0];
+    previousMonth[1] = -previousMonth[1];
+  }
+  if(isNegativeCurrentMonth){
+    currentMonth[0] = -currentMonth[0];
+    currentMonth[1] = -currentMonth[1];
+  }
+  let nbOfHoursDiff = previousMonth[0] + currentMonth[0],
+    nbOfMinutesDiff= previousMonth[1] + currentMonth[1];
+  let allMinutes = nbOfMinutesDiff + (nbOfHoursDiff*60),
+    totalMinutes = allMinutes%60,
+    totalHours = Math.trunc(allMinutes/60),
+    totalTime = `Tu as cumulé ${totalHours}H${+totalMinutes}`;
+  return {info, totalTime};
 }).then(function (result) {
-  console.log(result.sortieTime);
+  console.log(result.info);
   console.log(result.totalTime);
 });
