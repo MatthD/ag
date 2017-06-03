@@ -85,7 +85,7 @@ browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
   let allMinutes = nbOfMinutesDiff + (nbOfHoursDiff*60),
     totalMinutes = allMinutes%60,
     totalHours = Math.trunc(allMinutes/60),
-    totalTime = `Tu as cumulé ${totalHours}H${+totalMinutes}`;
+    totalTime = `Tu as cumulé ${Object.is(totalHours, -0) ? "-" : ""}${totalHours}H${Math.abs(totalMinutes)}`;
   return {info, totalTime};
 }).then(function (result) {
   console.log(result.info);
