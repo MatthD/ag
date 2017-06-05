@@ -23,7 +23,7 @@ const today=new Date(),
   fullLastDay = lastDay.toISOString().split('T')[0];
 
 browser = new Browser();
-// browser.proxy = "http://proxyout.inist.fr:8080";
+browser.proxy = process.env.http_proxy  || "";
 browser.waitDuration = '30s';
 
 browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
