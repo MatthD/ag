@@ -74,37 +74,34 @@ browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
     //Check if previousMonth & currentMonth ahs positiv or negativ value
     isNegativePreviousMonth = false,
     isNegativeCurrentMonth = false;
+  
 
-  //We need to cast string value to real number & if they are negative we double cast them
+  // We need to cast string value to real number & if they are negative we double cast them
   // !!!!we cannot just do - directly to cast negatif , not working
 
-  for(var element of previousMonth){
-    if(element.includes("-")){
+  for(var i = 0; i < previousMonth.length ; i++){
+    if(previousMonth[i].includes("-")){
       isNegativePreviousMonth = true;
     }
+    previousMonth[i] = +previousMonth[i];
   }
-  for(var element of currentMonth){
-    if(element.includes("-")){
+  for(var i = 0; i < currentMonth.length ; i++){
+    if(currentMonth[i].includes("-")){
       isNegativeCurrentMonth = true;
     }
+    currentMonth[i] = +currentMonth[i];
   }
-  //console.log(isNegativePreviousMonth,isNegativeCurrentMonth);
-
-  console.log(previousMonth, currentMonth);
 
   if(isNegativePreviousMonth){
-    previousMonth[0] = -previousMonth[0];
     previousMonth[1] = -previousMonth[1];
   }
   if(isNegativeCurrentMonth){
-    currentMonth[0] = -currentMonth[0];
     currentMonth[1] = -currentMonth[1];
   }
 
-  console.log(previousMonth, currentMonth);
-  let nbOfHoursDiff = (+previousMonth[0]) + (+currentMonth[0]),
-    nbOfMinutesDiff= (+previousMonth[1]) + (+currentMonth[1]);
-  console.log(nbOfHoursDiff, nbOfMinutesDiff);
+  let nbOfHoursDiff = previousMonth[0] + currentMonth[0],
+    nbOfMinutesDiff= previousMonth[1] + currentMonth[1];
+
   let allMinutes = nbOfMinutesDiff + (nbOfHoursDiff*60),
     totalMinutes = allMinutes%60,
     totalHours = Math.trunc(allMinutes/60),
