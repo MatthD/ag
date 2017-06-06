@@ -6,6 +6,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const Browser = require("zombie"),
   program = require('commander'),
+  promptPassword = require('prompt-password'),
   version = require('./package.json').version,
   assert = require("assert");
 
@@ -26,10 +27,21 @@ browser = new Browser();
 browser.proxy = process.env.http_proxy  || "";
 browser.waitDuration = '30s';
 
+
 browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
 
   browser.fill("#username", program.username);
-  browser.fill("#password", program.password);
+
+  if(!program.password){
+    let prompt = new promptPassword({
+      type: 'password',
+      message: 'Entrer votre mot de passe Janus',
+      name: 'password'
+    });
+    return prompt.run()
+  }
+}).then(function (password) {
+  browser.fill("#password", password || program.password);
 
   // browser.document.forms[0].submit();
   // // wait for new page to be loaded then fire callback function
@@ -60,17 +72,25 @@ browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
   let currentMonth = browser.document.querySelector("#fiche_pointage tfoot .diff.ui-state-default").textContent.trim().split("h"),
     previousMonth = browser.document.querySelector("#recap_mensuel tbody tr:nth-child(2) td:nth-child(2)").textContent.trim().split("h"),
     //Check if previousMonth & currentMonth ahs positiv or negativ value
-    isNegativePreviousMonth = previousMonth.indexOf("-"),
-    isNegativeCurrentMonth = currentMonth.indexOf("-");
+    isNegativePreviousMonth = false,
+    isNegativeCurrentMonth = false;
 
-  //We need to cast string value to real number & if they are negative we double cast them 
+  //We need to cast string value to real number & if they are negative we double cast them
   // !!!!we cannot just do - directly to cast negatif , not working
+
   for(var element of previousMonth){
-    element = +element;
+    if(element.includes("-")){
+      isNegativePreviousMonth = true;
+    }
   }
   for(var element of currentMonth){
-    element = +element;
+    if(element.includes("-")){
+      isNegativeCurrentMonth = true;
+    }
   }
+  //console.log(isNegativePreviousMonth,isNegativeCurrentMonth);
+
+  console.log(previousMonth, currentMonth);
 
   if(isNegativePreviousMonth){
     previousMonth[0] = -previousMonth[0];
@@ -80,8 +100,11 @@ browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
     currentMonth[0] = -currentMonth[0];
     currentMonth[1] = -currentMonth[1];
   }
-  let nbOfHoursDiff = previousMonth[0] + currentMonth[0],
-    nbOfMinutesDiff= previousMonth[1] + currentMonth[1];
+
+  console.log(previousMonth, currentMonth);
+  let nbOfHoursDiff = (+previousMonth[0]) + (+currentMonth[0]),
+    nbOfMinutesDiff= (+previousMonth[1]) + (+currentMonth[1]);
+  console.log(nbOfHoursDiff, nbOfMinutesDiff);
   let allMinutes = nbOfMinutesDiff + (nbOfHoursDiff*60),
     totalMinutes = allMinutes%60,
     totalHours = Math.trunc(allMinutes/60),
