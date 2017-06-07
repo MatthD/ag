@@ -74,7 +74,7 @@ browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
     //Check if previousMonth & currentMonth ahs positiv or negativ value
     isNegativePreviousMonth = false,
     isNegativeCurrentMonth = false;
-  
+
 
   // We need to cast string value to real number & if they are negative we double cast them
   // !!!!we cannot just do - directly to cast negatif , not working
@@ -104,8 +104,9 @@ browser.visit("https://ups76-1.agateb.cnrs.fr").then(function () {
 
   let allMinutes = nbOfMinutesDiff + (nbOfHoursDiff*60),
     totalMinutes = allMinutes%60,
-    totalHours = Math.trunc(allMinutes/60),
-    totalTime = `Tu as cumulé ${Object.is(totalHours, -0) ? "-" : ""}${totalHours}H${Math.abs(totalMinutes)}`;
+    totalHours = Math.trunc(allMinutes/60);
+  //convert on 2 bits number
+  let totalTime = `Tu as ${Object.is(totalHours, -0) || totalHours < 0 ? "un retard" : "une avance"} de ${Math.abs(totalHours)} Heure(s) et ${Math.abs(totalMinutes)} mn`;
   return {info, totalTime};
 }).then(function (result) {
   console.log(result.info);
